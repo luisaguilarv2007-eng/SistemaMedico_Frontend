@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IUJO SaludConnect - Panel Principal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="app-container">
+
+  <!-- Sidebar Lateral -->
+  <aside class="sidebar" id="sidebar">
+    <header class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">IUJO <span>Salud</span></a>
+    </header>
+    <nav aria-label="Menú principal">
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="crud.html">Gestión de Órdenes</a></li>
+        <li><a href="sistema_diseno.html">Sistema de Diseño</a></li>
+        <li><a href="login.html">Cerrar Sesión</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Área Principal -->
+  <main class="main-content">
+    <header class="navbar">
+      <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menú">☰</button>
+      <h2>Panel de Control</h2>
+      <figure class="navbar-user">
+        <span class="avatar">EP</span>
+        <figcaption>
+          <strong class="block text-sm">Eikan (Estudiante)</strong>
+          <small class="text-xs text-muted">Rol: Administrador</small>
+        </figcaption>
+      </figure>
+    </header>
+
+    <section class="content-wrapper">
+      <!-- Tarjetas KPI -->
+      <section class="kpi-grid" aria-label="Métricas del sistema">
+        <article class="kpi-card">
+          <h3 class="kpi-title">Órdenes Médicas Hoy</h3>
+          <p class="kpi-value">42</p>
+        </article>
+        <article class="kpi-card">
+          <h3 class="kpi-title">Pacientes Registrados</h3>
+          <p class="kpi-value">1,280</p>
+        </article>
+        <article class="kpi-card">
+          <h3 class="kpi-title">Estudios Pendientes</h3>
+          <p class="kpi-value">15</p>
+        </article>
+        <article class="kpi-card">
+          <h3 class="kpi-title">Facturación del Día</h3>
+          <p class="kpi-value">$1,850.00</p>
+        </article>
+      </section>
+
+      <!-- Panel Informativo -->
+      <article class="info-card">
+        <h3>Bienvenido al Sistema de Gestión de Salud</h3>
+        <p class="mt-2 text-muted">
+          Desde este panel puede administrar las órdenes de laboratorio, gestionar el expediente de los pacientes y auditar el estado de la facturación institucional.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

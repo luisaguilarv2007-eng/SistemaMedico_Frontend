@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IUJO SaludConnect - Registro de Paciente</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-wrapper">
+
+  <main class="auth-card">
+    <header class="auth-header">
+      <h1 class="text-brand-primary">Registro de Paciente</h1>
+      <p class="mt-2"><mark class="badge badge-public">Rol Público: Paciente</mark></p>
+    </header>
+
+    <form action="login.html" method="GET">
+      <p class="form-group">
+        <label for="nombre_completo">Nombre Completo</label>
+        <input type="text" id="nombre_completo" name="nombre_completo" class="form-control" placeholder="Juan Pérez" required>
+      </p>
+
+      <p class="form-group">
+        <label for="correo">Correo Electrónico / Cédula</label>
+        <input type="email" id="correo" name="correo" class="form-control" placeholder="paciente@correo.com" required>
+      </p>
+
+      <fieldset class="grid-2-col border-none p-0">
+        <p class="form-group">
+          <label for="pass">Contraseña</label>
+          <input type="password" id="pass" name="pass" class="form-control" placeholder="••••••••" required>
+        </p>
+        <p class="form-group">
+          <label for="pass_confirm">Confirmar</label>
+          <input type="password" id="pass_confirm" name="pass_confirm" class="form-control" placeholder="••••••••" required>
+        </p>
+      </fieldset>
+
+      <p class="form-group mb-4">
+        <label class="flex-items-center gap-2 font-normal text-sm">
+          <input type="checkbox" name="terms" required> Acepto los Términos y Condiciones
+        </label>
+      </p>
+
+      <button type="submit" class="btn btn-primary w-full">Registrarse</button>
+    </form>
+
+    <footer class="text-center mt-6 text-sm">
+      <p class="text-muted"><a href="login.html" class="text-brand-primary">¿Ya tienes cuenta? Inicia sesión aquí</a></p>
+    </footer>
+  </main>
+
+</body>
+</html>

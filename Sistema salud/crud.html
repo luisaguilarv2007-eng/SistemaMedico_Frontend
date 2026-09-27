@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IUJO SaludConnect - Gestión de Órdenes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="app-container">
+
+  <aside class="sidebar" id="sidebar">
+    <header class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">IUJO <span>Salud</span></a>
+    </header>
+    <nav aria-label="Navegación lateral">
+      <ul class="sidebar-menu">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="crud.html" class="active">Gestión de Órdenes</a></li>
+        <li><a href="sistema_diseno.html">Sistema de Diseño</a></li>
+        <li><a href="login.html">Cerrar Sesión</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="navbar">
+      <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir menú">☰</button>
+      <h2>Módulo de Órdenes y Servicios</h2>
+      <button type="button" class="btn btn-primary" onclick="openModal('modalOrder')">+ Nueva Órden</button>
+    </header>
+
+    <section class="content-wrapper">
+      <!-- Filtros y Búsqueda -->
+      <section class="filters-bar" aria-label="Filtros de búsqueda">
+        <p class="form-group mb-0">
+          <input type="search" class="form-control search-input" placeholder="Buscar por Paciente o Cédula...">
+        </p>
+        <p class="form-group mb-0">
+          <select class="form-control select-input" aria-label="Filtrar por Área">
+            <option value="">Todas las Áreas</option>
+            <option value="Laboratorio">Laboratorio</option>
+            <option value="Radiología">Radiología</option>
+          </select>
+        </p>
+      </section>
+
+      <!-- Tabla Semántica -->
+      <section class="table-responsive" aria-label="Listado de órdenes clínicas">
+        <table class="data-table">
+          <caption>Lista de órdenes registradas en el sistema</caption>
+          <thead>
+            <tr>
+              <th scope="col">ID Órden</th>
+              <th scope="col">Cédula Paciente</th>
+              <th scope="col">Médico Tratante</th>
+              <th scope="col">Fecha Creación</th>
+              <th scope="col">Estado Examen</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ORD-1001</strong></td>
+              <td>V-18234567</td>
+              <td>Dr. Roberto Gómez</td>
+              <td><time datetime="2026-09-25">2026-09-25</time></td>
+              <td><mark class="badge badge-completed">Completado</mark></td>
+              <td class="table-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('modalOrder')">Editar</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="openModal('modalDelete')">Eliminar</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>ORD-1002</strong></td>
+              <td>V-20112334</td>
+              <td>Dra. María Lugo</td>
+              <td><time datetime="2026-09-26">2026-09-26</time></td>
+              <td><mark class="badge badge-pending">Pendiente</mark></td>
+              <td class="table-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('modalOrder')">Editar</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="openModal('modalDelete')">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </section>
+  </main>
+
+  <!-- MODAL CREAR / EDITAR -->
+  <dialog class="modal-overlay" id="modalOrder" aria-labelledby="modalOrderTitle">
+    <article class="modal-content">
+      <header class="modal-header">
+        <h3 id="modalOrderTitle">Gestionar Órden Médica</h3>
+        <button type="button" aria-label="Cerrar modal" onclick="closeModal('modalOrder')" class="btn-close">✕</button>
+      </header>
+      <section class="modal-body">
+        <form id="formOrden" onsubmit="return false;">
+          <fieldset class="grid-2-col border-none p-0">
+            <p class="form-group">
+              <label for="cedula_paci">Cédula del Paciente</label>
+              <input type="text" id="cedula_paci" class="form-control" placeholder="V-00000000" required>
+            </p>
+            <p class="form-group">
+              <label for="id_medico">ID Médico Tratante</label>
+              <input type="number" id="id_medico" class="form-control" placeholder="ID Médico" required>
+            </p>
+          </fieldset>
+
+          <p class="form-group">
+            <label for="id_servicio">Servicio del Catálogo</label>
+            <select id="id_servicio" class="form-control" required>
+              <option value="">Seleccione Servicio...</option>
+              <option value="1">Perfil 20 (Laboratorio)</option>
+              <option value="2">Radiografía de Tórax (Radiología)</option>
+            </select>
+          </p>
+
+          <p class="form-group">
+            <label for="autorizado">Estado de Autorización</label>
+            <select id="autorizado" class="form-control">
+              <option value="true">Autorizado</option>
+              <option value="false">Pendiente por Autorizar</option>
+            </select>
+          </p>
+        </form>
+      </section>
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalOrder')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="closeModal('modalOrder'); showToast('Órden guardada exitosamente', 4);">Guardar Órden</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN -->
+  <dialog class="modal-overlay" id="modalDelete" aria-labelledby="modalDeleteTitle">
+    <article class="modal-content">
+      <header class="modal-header bg-danger">
+        <h3 id="modalDeleteTitle" class="text-white">Confirmar Eliminación</h3>
+        <button type="button" aria-label="Cerrar modal" onclick="closeModal('modalDelete')" class="btn-close text-white">✕</button>
+      </header>
+      <section class="modal-body">
+        <p>¿Está seguro de eliminar esta orden? Esta acción no se puede deshacer y afectará los registros asociados de laboratorio y facturación.</p>
+      </section>
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDelete')">Cancelar</button>
+        <button type="button" class="btn btn-danger" onclick="closeModal('modalDelete'); showToast('Órden eliminada del sistema', 4);">Eliminar Definitivamente</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>

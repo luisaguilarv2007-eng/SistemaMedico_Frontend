@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IUJO SaludConnect - Sistema de Diseño</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="p-4 max-w-6xl mx-auto">
+
+  <header class="mb-8 border-b-2 border-brand-primary pb-4">
+    <h1 class="text-brand-primary">Guía de Estilos Viva (Living Style Guide)</h1>
+    <p class="text-muted">Estándar de Diseño Frontend - IUJO SaludConnect (ADS-433)</p>
+  </header>
+
+  <main>
+    <!-- 1. MUESTRAS TONALES DE COLOR -->
+    <section class="mb-12">
+      <h2 class="mb-4">1. Paleta Tonal Oficial</h2>
+      <ul class="color-grid">
+        <li class="color-swatch bg-brand-dark text-white">
+          <strong>Obsidian Black</strong>
+          <code>#0b0a08</code>
+          <small>--brand-dark</small>
+        </li>
+        <li class="color-swatch bg-brand-primary text-white">
+          <strong>Ruby Crimson</strong>
+          <code>#be0b11</code>
+          <small>--brand-primary</small>
+        </li>
+        <li class="color-swatch bg-brand-hover text-white">
+          <strong>Deep Crimson</strong>
+          <code>#9b0c0f</code>
+          <small>--brand-hover</small>
+        </li>
+        <li class="color-swatch bg-brand-wine text-white">
+          <strong>Dark Wine</strong>
+          <code>#790d0d</code>
+          <small>--brand-wine</small>
+        </li>
+        <li class="color-swatch bg-brand-maroon text-white">
+          <strong>Deep Maroon</strong>
+          <code>#570e0b</code>
+          <small>--brand-maroon</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 2. ESCALA TIPOGRÁFICA -->
+    <section class="mb-12">
+      <h2>2. Escala Tipográfica (Montserrat / Open Sans)</h2>
+      <div class="mt-4">
+        <h1>H1: Encabezado Principal (Montserrat Bold)</h1>
+        <h2>H2: Encabezado de Sección</h2>
+        <h3>H3: Subsección de Módulo</h3>
+        <h4>H4: Título de Tarjeta o Componente</h4>
+        <p class="mt-2 text-muted">Párrafo regular (Open Sans): Sistema Integral de Gestión de Salud diseñado para la administración de exámenes, pacientes y facturación médica en la plataforma institucional.</p>
+      </div>
+    </section>
+
+    <!-- 3. CATÁLOGO DE BOTONES -->
+    <section class="mb-12">
+      <h2>3. Catálogo de Botones y Estados</h2>
+      <nav class="flex-wrap-gap mt-4" aria-label="Catálogo de botones">
+        <button type="button" class="btn btn-primary">Normal Primario</button>
+        <button type="button" class="btn btn-secondary">Secundario</button>
+        <button type="button" class="btn btn-danger">Peligro</button>
+        <button type="button" class="btn btn-success">Éxito</button>
+        <button type="button" class="btn btn-primary" disabled>Deshabilitado</button>
+      </nav>
+    </section>
+
+    <!-- 4. CONTROLES Y VALIDACIÓN -->
+    <section class="mb-12">
+      <h2>4. Formularios y Estados de Validación</h2>
+      <form class="grid-2-col mt-4" onsubmit="return false;">
+        <p class="form-group">
+          <label for="input-focus">Estado Focus (Haga Clic para Probar):</label>
+          <input type="text" id="input-focus" class="form-control" placeholder="Ingrese texto...">
+        </p>
+        <p class="form-group has-error">
+          <label for="input-error">Estado de Error:</label>
+          <input type="text" id="input-error" class="form-control" value="Valor inválido">
+          <span class="error-message">Campo obligatorio o formato incorrecto.</span>
+        </p>
+        <p class="form-group">
+          <label for="input-disabled">Estado Deshabilitado:</label>
+          <input type="text" id="input-disabled" class="form-control" value="Campo bloqueado" disabled>
+        </p>
+      </form>
+    </section>
+
+    <!-- 5. INTERACTIVIDAD DE MODALES Y TOASTS -->
+    <section class="mb-12">
+      <h2>5. Componentes Interactivos (Modales & Toast)</h2>
+      <menu class="flex-gap mt-4">
+        <li><button type="button" class="btn btn-primary" onclick="openModal('modalDemo')">Abrir Modal Demostración</button></li>
+        <li><button type="button" class="btn btn-success" onclick="showToast('¡Operación realizada con éxito!', 5)">Lanzar Toast Temporizado (5s)</button></li>
+      </menu>
+    </section>
+  </main>
+
+  <!-- MODAL DE PRUEBA -->
+  <dialog class="modal-overlay" id="modalDemo" aria-labelledby="modalDemoTitle">
+    <article class="modal-content">
+      <header class="modal-header">
+        <h3 id="modalDemoTitle">Modal de Confirmación</h3>
+        <button type="button" aria-label="Cerrar modal" onclick="closeModal('modalDemo')" class="btn-close">✕</button>
+      </header>
+      <section class="modal-body">
+        <p>¿Está seguro de procesar esta acción en el sistema de salud?</p>
+      </section>
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDemo')">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="closeModal('modalDemo'); showToast('Proceso confirmado', 3);">Aceptar</button>
+      </footer>
+    </article>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
