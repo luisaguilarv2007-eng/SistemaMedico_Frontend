@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Inventario — ADS-433</title>
+    <!-- Librería de íconos profesionales (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* =============================================
+           SISTEMA DE DISEÑO - Variables CSS Globales
+           ============================================= */
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #DBEAFE;
+            --dark: #1E293B;
+            --dark-light: #334155;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --error: #EF4444;
+            --error-light: #FEE2E2;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Reset y base */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--gray-50);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .lucide {
+            vertical-align: middle;
+        }
+
+        /* =============================================
+           HEADER / BARRA SUPERIOR
+           ============================================= */
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 span {
+            font-weight: 400;
+            opacity: 0.8;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .header-badge {
+            background: rgba(255,255,255,0.15);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-dot.online {
+            background-color: #4ade80;
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+        }
+        
+        .status-dot.offline {
+            background-color: #f87171;
+            box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+        }
+
+        /* =============================================
+           CONTENEDOR PRINCIPAL
+           ============================================= */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* =============================================
+           BARRA DE ACCIONES (Buscar + Botón Crear)
+           ============================================= */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.8rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            background: var(--white);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        /* =============================================
+           BOTONES
+           ============================================= */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn .lucide {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: var(--white);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #DC2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--gray-600);
+            border: 2px solid var(--gray-200);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--gray-400);
+            background: var(--gray-100);
+        }
+
+        .btn-sm {
+            padding: 0.45rem 0.9rem;
+            font-size: 0.85rem;
+        }
+        
+        .btn-sm .lucide {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-icon-only {
+            padding: 0.45rem;
+        }
+        
+        .btn-icon-only .lucide {
+            margin: 0;
+        }
+
+        /* =============================================
+           TARJETAS DE ESTADÍSTICAS
+           ============================================= */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon-svg {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* =============================================
+           TABLA DE PRODUCTOS
+           ============================================= */
+        .table-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-header h2 {
+            font-size: 1.15rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gray-50);
+        }
+
+        th {
+            padding: 0.9rem 1.25rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-500);
+            border-bottom: 2px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 0.93rem;
+            color: var(--dark-light);
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: var(--primary-light);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-category {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .badge-stock-ok {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .badge-stock-low {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .badge-stock-out {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        .price {
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* =============================================
+           ESTADOS DE CARGA / SKELETON SCREEN
+           ============================================= */
+        .skeleton-row {
+            display: flex;
+            gap: 1.25rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+            height: 18px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-wide { width: 150px; }
+        .skeleton-medium { width: 100px; }
+        .skeleton-small { width: 60px; }
+
+        /* Estado vacío */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray-500);
+        }
+
+        .empty-icon-svg {
+            width: 48px;
+            height: 48px;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* =============================================
+           MODAL
+           ============================================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9) translateY(20px);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem 1.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-400);
+            transition: var(--transition);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-100);
+            color: var(--dark);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 0 1.5rem 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        /* =============================================
+           FORMULARIOS
+           ============================================= */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--dark-light);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group label .required {
+            color: var(--error);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+            outline: none;
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .form-control.error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px var(--error-light);
+        }
+
+        .form-control.error:focus {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px var(--error-light);
+        }
+
+        .error-text {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+
+        .form-group.has-error .error-text {
+            display: block;
+        }
+
+        .form-group.has-error .form-control {
+            border-color: var(--error);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* =============================================
+           MODAL DE CONFIRMACIÓN (ELIMINAR)
+           ============================================= */
+        .confirm-modal .modal {
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .confirm-icon-svg {
+            width: 56px;
+            height: 56px;
+            color: var(--warning);
+            margin-bottom: 0.5rem;
+        }
+
+        .confirm-text {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-text strong {
+            color: var(--dark);
+        }
+
+        /* =============================================
+           TOAST / NOTIFICACIONES
+           ============================================= */
+        .toast-container {
+            position: fixed;
+            top: 5rem;
+            right: 1.5rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            color: var(--white);
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-width: 300px;
+            max-width: 450px;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition);
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--error); }
+        .toast-warning { background: var(--warning); color: var(--dark); }
+
+        .toast-icon { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toast-icon .lucide {
+            width: 20px;
+            height: 20px;
+        }
+
+        .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .toast-close:hover { opacity: 1; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* =============================================
+           SPINNER PARA BOTONES
+           ============================================= */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* =============================================
+           RESPONSIVE
+           ============================================= */
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; text-align: center; }
+            .header h1 { justify-content: center; }
+            .container { padding: 1rem; }
+            .action-bar { flex-direction: column; }
+            .search-box { max-width: 100%; }
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .actions-cell { flex-direction: column; }
+            th, td { padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-content">
+            <h1>
+                <i data-lucide="package-search"></i> 
+                <div>
+                    Sistema de Gestión de Inventario
+                    <span>ADS-433 • IUJO • Lapso 2-2026</span>
+                </div>
+            </h1>
+            <div class="header-badge" id="connBadge">
+                <span class="status-dot online"></span> API Conectada
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <main class="container">
+
+        <!-- Tarjetas de estadísticas -->
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <i data-lucide="boxes" class="stat-icon-svg"></i>
+                <div class="stat-value" id="statTotal">—</div>
+                <div class="stat-label">Productos Activos</div>
+            </div>
+            <div class="stat-card">
+                <i data-lucide="tags" class="stat-icon-svg"></i>
+                <div class="stat-value" id="statCategorias">—</div>
+                <div class="stat-label">Categorías</div>
+            </div>
+            <div class="stat-card">
+                <i data-lucide="alert-triangle" class="stat-icon-svg"></i>
+                <div class="stat-value" id="statBajoStock">—</div>
+                <div class="stat-label">Stock Bajo (&lt;5)</div>
+            </div>
+            <div class="stat-card">
+                <i data-lucide="circle-dollar-sign" class="stat-icon-svg"></i>
+                <div class="stat-value" id="statValorTotal">—</div>
+                <div class="stat-label">Valor Inventario</div>
+            </div>
+        </section>
+
+        <!-- Barra de acciones -->
+        <div class="action-bar">
+            <div class="search-box">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar productos por nombre, categoría..." autocomplete="off">
+            </div>
+            <button class="btn btn-primary" onclick="abrirModalCrear()">
+                <i data-lucide="plus"></i> Nuevo Producto
+            </button>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="table-card">
+            <div class="table-header">
+                <h2><i data-lucide="list"></i> Listado de Productos</h2>
+                <span id="productCount" style="color: var(--gray-400); font-size: 0.85rem;"></span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <!-- Contenido dinámico generado por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== MODAL CREAR/EDITAR PRODUCTO ===== -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Producto</h2>
+                <button class="modal-close" onclick="cerrarModal()"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm" novalidate>
+                    <input type="hidden" id="productoId">
+
+                    <div class="form-group">
+                        <label>Nombre del Producto <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="inputNombre" required minlength="2" maxlength="100" placeholder="Ej: Laptop Dell Inspiron 15">
+                        <div class="error-text" id="errorNombre">El nombre es obligatorio (mín. 2 caracteres)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea class="form-control" id="inputDescripcion" rows="3" placeholder="Descripción detallada del producto..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría <span class="required">*</span></label>
+                        <select class="form-control" id="inputCategoria" required>
+                            <option value="">— Seleccionar categoría —</option>
+                        </select>
+                        <div class="error-text" id="errorCategoria">Debe seleccionar una categoría</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Precio (USD) <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="inputPrecio" required min="0.01" step="0.01" placeholder="0.00">
+                            <div class="error-text" id="errorPrecio">El precio debe ser mayor a 0</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="inputStock" required min="0" step="1" placeholder="0">
+                            <div class="error-text" id="errorStock">El stock no puede ser negativo</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" type="button" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" id="btnSubmit" onclick="enviarFormulario()">
+                    <i data-lucide="save"></i> Guardar Producto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DE CONFIRMACIÓN ELIMINAR ===== -->
+    <div class="modal-overlay confirm-modal" id="confirmModal">
+        <div class="modal">
+            <div class="modal-body" style="padding: 2rem 1.5rem;">
+                <i data-lucide="alert-circle" class="confirm-icon-svg"></i>
+                <h2 style="margin-bottom: 0.75rem;">¿Eliminar producto?</h2>
+                <p class="confirm-text">
+                    Estás a punto de eliminar <strong id="confirmProductName"></strong>.<br>
+                    Esta acción desactivará el producto del sistema.
+                </p>
+                <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                    <button class="btn btn-outline" onclick="cerrarConfirmModal()">Cancelar</button>
+                    <button class="btn btn-danger" id="btnConfirmDelete" onclick="confirmarEliminacion()">
+                        <i data-lucide="trash-2"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONTENEDOR DE TOASTS ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // Inicializar iconos al cargar
+        lucide.createIcons();
+        
+        const API_BASE = 'http://localhost:8000/api';
+
+        // Estado global de la aplicación
+        let productos = [];
+        let categorias = [];
+        let productoEliminarId = null;
+
+        // =============================================
+        // SISTEMA DE NOTIFICACIONES (TOASTS)
+        // =============================================
+        function mostrarToast(mensaje, tipo = 'success') {
+            const container = document.getElementById('toastContainer');
+            const iconos = {
+                success: '<i data-lucide="check-circle"></i>',
+                error: '<i data-lucide="x-circle"></i>',
+                warning: '<i data-lucide="alert-triangle"></i>'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${tipo}`;
+            toast.innerHTML = `
+                <span class="toast-icon">${iconos[tipo]}</span>
+                <span>${mensaje}</span>
+                <button class="toast-close" onclick="this.parentElement.classList.add('removing'); setTimeout(() => this.parentElement.remove(), 300)">&times;</button>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons(); // Renderizar icono del nuevo toast
+
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // =============================================
+        // SKELETON SCREEN (ESTADO: CARGANDO)
+        // =============================================
+        function mostrarSkeletonTable() {
+            const tbody = document.getElementById('productTableBody');
+            let skeletonHTML = '';
+            for (let i = 0; i < 5; i++) {
+                skeletonHTML += `
+                    <tr>
+                        <td><div class="skeleton skeleton-small"></div></td>
+                        <td><div class="skeleton skeleton-wide"></div></td>
+                        <td><div class="skeleton skeleton-wide"></div></td>
+                        <td><div class="skeleton skeleton-medium"></div></td>
+                        <td><div class="skeleton skeleton-small"></div></td>
+                        <td><div class="skeleton skeleton-small"></div></td>
+                        <td><div class="skeleton skeleton-medium"></div></td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = skeletonHTML;
+        }
+
+        // =============================================
+        // CONSUMO ASÍNCRONO DE APIs
+        // =============================================
+        async function cargarProductos() {
+            mostrarSkeletonTable();
+
+            try {
+                const respuesta = await fetch(`${API_BASE}/productos`);
+
+                if (!respuesta.ok) {
+                    throw new Error(`Error del servidor: ${respuesta.status} ${respuesta.statusText}`);
+                }
+
+                productos = await respuesta.json();
+                renderizarTabla(productos);
+                actualizarEstadisticas();
+
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                document.getElementById('productTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i data-lucide="plug-zap" class="empty-icon-svg"></i>
+                                <p>Error al conectar con el servidor</p>
+                                <small style="color: var(--error);">${error.message}</small><br><br>
+                                <button class="btn btn-primary btn-sm" onclick="cargarProductos()">
+                                    <i data-lucide="refresh-cw"></i> Reintentar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                mostrarToast('No se pudieron cargar los productos. Verifica que el servidor esté activo.', 'error');
+                actualizarBadgeConexion(false);
+            }
+        }
+
+        async function cargarCategorias() {
+            try {
+                const respuesta = await fetch(`${API_BASE}/categorias`);
+                if (!respuesta.ok) {
+                    throw new Error(`Error ${respuesta.status}`);
+                }
+                categorias = await respuesta.json();
+                renderizarSelectCategorias();
+            } catch (error) {
+                console.error('Error al cargar categorías:', error);
+                mostrarToast('Error al cargar las categorías', 'error');
+            }
+        }
+
+        async function crearProducto(datos) {
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner"></span> Guardando...';
+
+            try {
+                const respuesta = await fetch(`${API_BASE}/productos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                if (!respuesta.ok) {
+                    const errorData = await respuesta.json();
+                    throw new Error(errorData.detail || `Error ${respuesta.status}`);
+                }
+
+                const nuevoProducto = await respuesta.json();
+                mostrarToast(`Producto "${nuevoProducto.nombre}" creado exitosamente`, 'success');
+                cerrarModal();
+                await cargarProductos();
+
+            } catch (error) {
+                mostrarToast(`Error al crear producto: ${error.message}`, 'error');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i data-lucide="save"></i> Guardar Producto';
+                lucide.createIcons();
+            }
+        }
+
+        async function actualizarProducto(id, datos) {
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner"></span> Actualizando...';
+
+            try {
+                const respuesta = await fetch(`${API_BASE}/productos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+
+                if (!respuesta.ok) {
+                    const errorData = await respuesta.json();
+                    throw new Error(errorData.detail || `Error ${respuesta.status}`);
+                }
+
+                const productoActualizado = await respuesta.json();
+                mostrarToast(`Producto "${productoActualizado.nombre}" actualizado exitosamente`, 'success');
+                cerrarModal();
+                await cargarProductos();
+
+            } catch (error) {
+                mostrarToast(`Error al actualizar: ${error.message}`, 'error');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i data-lucide="save"></i> Guardar Producto';
+                lucide.createIcons();
+            }
+        }
+
+        async function eliminarProducto(id) {
+            const btnDelete = document.getElementById('btnConfirmDelete');
+            btnDelete.disabled = true;
+            btnDelete.innerHTML = '<span class="spinner"></span> Eliminando...';
+
+            try {
+                const respuesta = await fetch(`${API_BASE}/productos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!respuesta.ok) {
+                    const errorData = await respuesta.json();
+                    throw new Error(errorData.detail || `Error ${respuesta.status}`);
+                }
+
+                mostrarToast('Producto eliminado correctamente', 'success');
+                cerrarConfirmModal();
+                await cargarProductos();
+
+            } catch (error) {
+                mostrarToast(`Error al eliminar: ${error.message}`, 'error');
+            } finally {
+                btnDelete.disabled = false;
+                btnDelete.innerHTML = '<i data-lucide="trash-2"></i> Eliminar';
+                lucide.createIcons();
+            }
+        }
+
+        // =============================================
+        // RENDERIZADO DE LA TABLA DE PRODUCTOS
+        // =============================================
+        function renderizarTabla(datos) {
+            const tbody = document.getElementById('productTableBody');
+            const countSpan = document.getElementById('productCount');
+
+            if (datos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i data-lucide="package-open" class="empty-icon-svg"></i>
+                                <p>No hay productos registrados</p>
+                                <button class="btn btn-primary btn-sm" onclick="abrirModalCrear()">
+                                    <i data-lucide="plus"></i> Agregar Primer Producto
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                countSpan.textContent = '0 productos';
+                lucide.createIcons();
+                return;
+            }
+
+            countSpan.textContent = `${datos.length} producto${datos.length !== 1 ? 's' : ''}`;
+
+            tbody.innerHTML = datos.map(p => {
+                const categoriaNombre = categorias.find(c => c.id === p.categoria_id)?.nombre || `ID: ${p.categoria_id}`;
+                let stockBadgeClass, stockLabel;
+                if (p.stock === 0) {
+                    stockBadgeClass = 'badge-stock-out';
+                    stockLabel = `${p.stock} — Agotado`;
+                } else if (p.stock < 5) {
+                    stockBadgeClass = 'badge-stock-low';
+                    stockLabel = `${p.stock} — Bajo`;
+                } else {
+                    stockBadgeClass = 'badge-stock-ok';
+                    stockLabel = p.stock;
+                }
+
+                return `
+                    <tr>
+                        <td><strong>#${p.id}</strong></td>
+                        <td><strong>${escapeHTML(p.nombre)}</strong></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(p.descripcion || '')}">${escapeHTML(p.descripcion || '—')}</td>
+                        <td><span class="badge badge-category">${escapeHTML(categoriaNombre)}</span></td>
+                        <td class="price">$${parseFloat(p.precio).toFixed(2)}</td>
+                        <td><span class="badge ${stockBadgeClass}">${stockLabel}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-sm btn-primary" onclick="abrirModalEditar(${p.id})" title="Editar">
+                                    <i data-lucide="pencil"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-icon-only btn-danger" onclick="abrirConfirmModal(${p.id}, '${escapeHTML(p.nombre)}')" title="Eliminar">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Renderizar nuevos iconos de la tabla
+            lucide.createIcons();
+        }
+
+        function renderizarSelectCategorias() {
+            const select = document.getElementById('inputCategoria');
+            select.innerHTML = '<option value="">— Seleccionar categoría —</option>';
+            categorias.forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${escapeHTML(cat.nombre)}</option>`;
+            });
+        }
+
+        function actualizarEstadisticas() {
+            document.getElementById('statTotal').textContent = productos.length;
+            document.getElementById('statCategorias').textContent = categorias.length;
+            const bajoStock = productos.filter(p => p.stock < 5).length;
+            document.getElementById('statBajoStock').textContent = bajoStock;
+            const valorTotal = productos.reduce((sum, p) => sum + (p.precio * p.stock), 0);
+            document.getElementById('statValorTotal').textContent = `$${valorTotal.toFixed(2)}`;
+        }
+
+        function actualizarBadgeConexion(conectado) {
+            const badge = document.getElementById('connBadge');
+            if (conectado) {
+                badge.innerHTML = '<span class="status-dot online"></span> API Conectada';
+            } else {
+                badge.innerHTML = '<span class="status-dot offline"></span> Sin Conexión';
+            }
+        }
+
+        // =============================================
+        // GESTIÓN DE MODALES
+        // =============================================
+        function abrirModalCrear() {
+            document.getElementById('modalTitle').textContent = 'Nuevo Producto';
+            document.getElementById('btnSubmit').innerHTML = '<i data-lucide="save"></i> Guardar Producto';
+            lucide.createIcons();
+            document.getElementById('productoId').value = '';
+            limpiarFormulario();
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        async function abrirModalEditar(id) {
+            try {
+                const respuesta = await fetch(`${API_BASE}/productos/${id}`);
+                if (!respuesta.ok) throw new Error(`Error ${respuesta.status}`);
+                const producto = await respuesta.json();
+
+                document.getElementById('modalTitle').textContent = 'Editar Producto';
+                document.getElementById('btnSubmit').innerHTML = '<i data-lucide="save"></i> Actualizar Producto';
+                lucide.createIcons();
+                document.getElementById('productoId').value = producto.id;
+                document.getElementById('inputNombre').value = producto.nombre;
+                document.getElementById('inputDescripcion').value = producto.descripcion || '';
+                document.getElementById('inputCategoria').value = producto.categoria_id;
+                document.getElementById('inputPrecio').value = producto.precio;
+                document.getElementById('inputStock').value = producto.stock;
+
+                limpiarErrores();
+                document.getElementById('productModal').classList.add('active');
+            } catch (error) {
+                mostrarToast(`Error al cargar producto: ${error.message}`, 'error');
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('productModal').classList.remove('active');
+            limpiarFormulario();
+        }
+
+        function abrirConfirmModal(id, nombre) {
+            productoEliminarId = id;
+            document.getElementById('confirmProductName').textContent = nombre;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function cerrarConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            productoEliminarId = null;
+        }
+
+        function confirmarEliminacion() {
+            if (productoEliminarId) {
+                eliminarProducto(productoEliminarId);
+            }
+        }
+
+        function validarFormulario() {
+            let esValido = true;
+            limpiarErrores();
+
+            const nombre = document.getElementById('inputNombre').value.trim();
+            const categoria = document.getElementById('inputCategoria').value;
+            const precio = document.getElementById('inputPrecio').value;
+            const stock = document.getElementById('inputStock').value;
+
+            if (!nombre || nombre.length < 2) {
+                marcarError('inputNombre', 'errorNombre');
+                esValido = false;
+            }
+
+            if (!categoria) {
+                marcarError('inputCategoria', 'errorCategoria');
+                esValido = false;
+            }
+
+            if (!precio || parseFloat(precio) <= 0 || isNaN(parseFloat(precio))) {
+                marcarError('inputPrecio', 'errorPrecio');
+                esValido = false;
+            }
+
+            if (stock === '' || parseInt(stock) < 0 || isNaN(parseInt(stock))) {
+                marcarError('inputStock', 'errorStock');
+                esValido = false;
+            }
+
+            return esValido;
+        }
+
+        function marcarError(inputId, errorId) {
+            const group = document.getElementById(inputId).closest('.form-group');
+            group.classList.add('has-error');
+            document.getElementById(inputId).classList.add('error');
+        }
+
+        function limpiarErrores() {
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+            document.querySelectorAll('.form-control').forEach(c => c.classList.remove('error'));
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('productForm').reset();
+            document.getElementById('productoId').value = '';
+            limpiarErrores();
+        }
+
+        function enviarFormulario() {
+            if (!validarFormulario()) {
+                mostrarToast('Por favor, corrige los errores del formulario', 'warning');
+                return;
+            }
+
+            const id = document.getElementById('productoId').value;
+            const datos = {
+                nombre: document.getElementById('inputNombre').value.trim(),
+                descripcion: document.getElementById('inputDescripcion').value.trim() || null,
+                categoria_id: parseInt(document.getElementById('inputCategoria').value),
+                precio: parseFloat(document.getElementById('inputPrecio').value),
+                stock: parseInt(document.getElementById('inputStock').value)
+            };
+
+            if (id) {
+                actualizarProducto(id, datos);
+            } else {
+                crearProducto(datos);
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const termino = e.target.value.toLowerCase().trim();
+            if (!termino) {
+                renderizarTabla(productos);
+                return;
+            }
+            const filtrados = productos.filter(p => {
+                const categoriaNombre = categorias.find(c => c.id === p.categoria_id)?.nombre || '';
+                return p.nombre.toLowerCase().includes(termino) ||
+                       (p.descripcion && p.descripcion.toLowerCase().includes(termino)) ||
+                       categoriaNombre.toLowerCase().includes(termino);
+            });
+            renderizarTabla(filtrados);
+        });
+
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) cerrarConfirmModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarModal();
+                cerrarConfirmModal();
+            }
+        });
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await cargarCategorias();
+            await cargarProductos();
+            actualizarBadgeConexion(true);
+        });
+    </script>
+</body>
+</html>
