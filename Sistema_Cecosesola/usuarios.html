@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - InfoLab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-logo">
+                <div class="logo-icon"><i class="bi bi-hospital"></i></div>
+                <div>
+                    <span class="logo-text">InfoLab</span>
+                    <span class="logo-sub">CECOCESOLA Santa Cruz</span>
+                </div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-label">Operaciones</div>
+            <a href="index.html"><span class="nav-icon"><i class="bi bi-people-fill"></i></span> Recepción / Pacientes</a>
+            <a href="ordenes.html"><span class="nav-icon"><i class="bi bi-receipt-cutoff"></i></span> Caja y Facturación</a>
+            <a href="laboratorio.html"><span class="nav-icon"><i class="bi bi-eyedropper"></i></span> Laboratorio</a>
+            <a href="distribucion.html"><span class="nav-icon"><i class="bi bi-send-fill"></i></span> Distribución</a>
+            <div class="sidebar-label">Administración</div>
+            <a href="catalogo.html"><span class="nav-icon"><i class="bi bi-journal-medical"></i></span> Catálogo de Servicios</a>
+            <a href="usuarios.html" class="active"><span class="nav-icon"><i class="bi bi-shield-lock-fill"></i></span> Usuarios</a>
+        </nav>
+        <div class="sidebar-footer">© 2026 InfoLab v2.0</div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <header class="top-navbar" data-module="usuarios">
+            <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            <div class="page-title">
+                <span class="title-icon"><i class="bi bi-shield-lock-fill"></i></span> Gestión de Usuarios
+            </div>
+            <span class="breadcrumb-module">Módulo: Seguridad</span>
+        </header>
+
+        <div class="page-body">
+            <div id="alert-container"></div>
+
+            <div class="row">
+                <!-- Formulario de Registro (POST) -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Registrar Personal
+                        </div>
+                        <div class="card-body">
+                            <form id="formUsuario">
+                                <div class="mb-2">
+                                    <label class="form-label small">Nombre de Usuario *</label>
+                                    <input type="text" class="form-control form-control-sm" id="nombre" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Contraseña *</label>
+                                    <input type="password" class="form-control form-control-sm" id="password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Rol Operativo *</label>
+                                    <select class="form-select form-select-sm" id="rol" required>
+                                        <option value="Administrador">Administrador</option>
+                                        <option value="Médico">Médico</option>
+                                        <option value="Laboratorio">Laboratorio</option>
+                                        <option value="Caja">Caja</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success btn-sm" id="btnGuardar">
+                                        <span class="spinner-border spinner-border-sm me-2" id="spinner-btn" style="display:none;"></span>
+                                        Guardar Usuario
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla del Directorio (GET y DELETE) -->
+                <div class="col-md-9">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+                            Personal Activo
+                            <div class="spinner-border spinner-border-sm text-light" id="spinner-carga" role="status" style="display:none;"></div>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table table-hover align-middle m-0 text-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre de Usuario</th>
+                                        <th>Rol</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaUsuarios">
+                                    <!-- Datos desde la API -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+    <!-- Modal de Edición Bootstrap (PUT) -->
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title fw-bold">Modificar Acceso</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="edit_id">
+            <div class="mb-3">
+                <label class="form-label">Nuevo Rol</label>
+                <select class="form-select" id="edit_rol">
+                    <option value="Administrador">Administrador</option>
+                    <option value="Médico">Médico</option>
+                    <option value="Laboratorio">Laboratorio</option>
+                    <option value="Caja">Caja</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nueva Contraseña (Opcional)</label>
+                <input type="password" class="form-control" id="edit_password" placeholder="Dejar en blanco para no cambiar">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarEdicion()">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        const API_URL = 'http://127.0.0.1:8000/api/usuarios/';
+        let modalInstance;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalInstance = new bootstrap.Modal(document.getElementById('modalEditar'));
+            cargarUsuarios();
+        });
+
+        function mostrarAlerta(mensaje, tipo) {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show">
+                ${mensaje} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        async function cargarUsuarios() {
+            document.getElementById('spinner-carga').style.display = 'block';
+            try {
+                const response = await fetch(API_URL);
+                const usuarios = await response.json();
+                const tbody = document.getElementById('tablaUsuarios');
+                tbody.innerHTML = '';
+                
+                usuarios.forEach(u => {
+                    let badgeColor = u.rol === 'Administrador' ? 'bg-danger' : 
+                                     u.rol === 'Médico' ? 'bg-success' : 
+                                     u.rol === 'Laboratorio' ? 'bg-info text-dark' : 'bg-secondary';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${u.id_usuario}</strong></td>
+                            <td>${u.nombre}</td>
+                            <td><span class="badge ${badgeColor}">${u.rol}</span></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning me-1" onclick="abrirEdicion(${u.id_usuario}, '${u.rol}')">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${u.id_usuario})">Inhabilitar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                mostrarAlerta('Error cargando usuarios.', 'danger');
+            } finally {
+                document.getElementById('spinner-carga').style.display = 'none';
+            }
+        }
+
+        document.getElementById('formUsuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnGuardar');
+            btn.disabled = true; document.getElementById('spinner-btn').style.display = 'inline-block';
+
+            const payload = {
+                nombre: document.getElementById('nombre').value,
+                password: document.getElementById('password').value,
+                rol: document.getElementById('rol').value
+            };
+
+            try {
+                const response = await fetch(API_URL + 'registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.status === 201) {
+                    mostrarAlerta('Usuario creado y credenciales encriptadas.', 'success');
+                    document.getElementById('formUsuario').reset();
+                    cargarUsuarios();
+                } else {
+                    mostrarAlerta('Error al crear usuario.', 'warning');
+                }
+            } catch (error) {
+                mostrarAlerta('Error de red.', 'danger');
+            } finally {
+                btn.disabled = false; document.getElementById('spinner-btn').style.display = 'none';
+            }
+        });
+
+        function abrirEdicion(id, rol) {
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_rol').value = rol;
+            document.getElementById('edit_password').value = '';
+            modalInstance.show();
+        }
+
+        async function guardarEdicion() {
+            const id = document.getElementById('edit_id').value;
+            const payload = {
+                rol: document.getElementById('edit_rol').value,
+                password: document.getElementById('edit_password').value || null
+            };
+
+            try {
+                const response = await fetch(API_URL + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    mostrarAlerta('Acceso modificado con éxito.', 'success');
+                    modalInstance.hide();
+                    cargarUsuarios();
+                } else {
+                    mostrarAlerta('Error al actualizar.', 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error de red al actualizar.', 'danger');
+            }
+        }
+
+        async function eliminarUsuario(id) {
+            if (!confirm('¿Inhabilitar el acceso a este empleado? Su registro en auditoría se conservará.')) return;
+            try {
+                const response = await fetch(API_URL + id, { method: 'DELETE' });
+                if (response.ok) {
+                    mostrarAlerta('Usuario inhabilitado.', 'success');
+                    cargarUsuarios();
+                }
+            } catch (error) {
+                mostrarAlerta('Error al inhabilitar.', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribución de Resultados - InfoLab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-logo">
+                <div class="logo-icon"><i class="bi bi-hospital"></i></div>
+                <div>
+                    <span class="logo-text">InfoLab</span>
+                    <span class="logo-sub">CECOCESOLA Santa Cruz</span>
+                </div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-label">Operaciones</div>
+            <a href="index.html"><span class="nav-icon"><i class="bi bi-people-fill"></i></span> Recepción / Pacientes</a>
+            <a href="ordenes.html"><span class="nav-icon"><i class="bi bi-receipt-cutoff"></i></span> Caja y Facturación</a>
+            <a href="laboratorio.html"><span class="nav-icon"><i class="bi bi-eyedropper"></i></span> Laboratorio</a>
+            <a href="distribucion.html" class="active"><span class="nav-icon"><i class="bi bi-send-fill"></i></span> Distribución</a>
+            <div class="sidebar-label">Administración</div>
+            <a href="catalogo.html"><span class="nav-icon"><i class="bi bi-journal-medical"></i></span> Catálogo de Servicios</a>
+            <a href="usuarios.html"><span class="nav-icon"><i class="bi bi-shield-lock-fill"></i></span> Usuarios</a>
+        </nav>
+        <div class="sidebar-footer">© 2026 InfoLab v2.0</div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main-content">
+        <header class="top-navbar" data-module="distribucion">
+            <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            <div class="page-title">
+                <span class="title-icon"><i class="bi bi-send-fill"></i></span> Distribución de Resultados
+            </div>
+            <span class="breadcrumb-module">Módulo: Distribución Automatizada</span>
+        </header>
+
+        <div class="page-body">
+            <div id="alert-container"></div>
+
+            <div class="row">
+                <!-- CRUD: ARCHIVOS ADJUNTOS -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+                            Archivos Adjuntos (PDF)
+                            <button class="btn btn-sm btn-primary" onclick="abrirModalArchivo()">+ Nuevo Archivo</button>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table table-hover align-middle m-0 text-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>ID Detalle</th>
+                                        <th>Ruta del Documento</th>
+                                        <th class="text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaArchivos">
+                                    <!-- Datos desde la API -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRUD: ENVÍOS AUTOMATIZADOS -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+                            Historial de Envíos (WhatsApp / Correo)
+                            <button class="btn btn-sm btn-success" onclick="abrirModalEnvio()">+ Programar Envío</button>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table table-hover align-middle m-0 text-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Orden</th>
+                                        <th>Canal</th>
+                                        <th>Estatus</th>
+                                        <th class="text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaEnvios">
+                                    <!-- Datos desde la API -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+    <!-- Modal: Crear Archivo -->
+    <div class="modal fade" id="modalArchivo" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Subir Nuevo PDF</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">ID del Detalle (Examen)</label>
+                <input type="number" class="form-control" id="id_detalle">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ruta del Archivo</label>
+                <input type="text" class="form-control" id="url_archivo" placeholder="/static/pdf/orden1.pdf">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="guardarArchivo()">Vincular Archivo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Programar Envío -->
+    <div class="modal fade" id="modalCrearEnvio" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">Programar Envío</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">N° de Orden</label>
+                <input type="number" class="form-control" id="envio_id_orden">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Canal</label>
+                <select class="form-select" id="envio_canal">
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Correo">Correo</option>
+                </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" onclick="guardarEnvio()">Programar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Actualizar Envío -->
+    <div class="modal fade" id="modalEditarEnvio" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Actualizar Estatus de Envío</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="edit_id_envio">
+            <div class="mb-3">
+                <label class="form-label">Estatus</label>
+                <select class="form-select" id="edit_estado">
+                    <option value="true">Entregado Exitosamente</option>
+                    <option value="false">Error en el Envío</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mensaje de Error</label>
+                <input type="text" class="form-control" id="edit_error">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-warning" onclick="actualizarEnvio()">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        const API_BASE = 'http://127.0.0.1:8000/api/distribucion';
+        let modalArchivo, modalCrearEnvio, modalEditarEnvio;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalArchivo = new bootstrap.Modal(document.getElementById('modalArchivo'));
+            modalCrearEnvio = new bootstrap.Modal(document.getElementById('modalCrearEnvio'));
+            modalEditarEnvio = new bootstrap.Modal(document.getElementById('modalEditarEnvio'));
+            cargarDatos();
+        });
+
+        function mostrarAlerta(mensaje, tipo) {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show">${mensaje} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        async function cargarDatos() {
+            try {
+                const resArchivos = await fetch(`${API_BASE}/adjuntos`);
+                const archivos = await resArchivos.json();
+                let htmlArchivos = '';
+                archivos.forEach(a => {
+                    htmlArchivos += `
+                        <tr>
+                            <td>${a.id_archivo}</td>
+                            <td>${a.id_detalle}</td>
+                            <td class="small text-truncate" style="max-width: 150px;">${a.url_archivo}</td>
+                            <td class="text-center"><button class="btn btn-sm btn-danger py-0" onclick="borrarArchivo(${a.id_archivo})">Borrar</button></td>
+                        </tr>`;
+                });
+                document.getElementById('tablaArchivos').innerHTML = htmlArchivos || '<tr><td colspan="4" class="text-center text-muted">Sin archivos</td></tr>';
+            } catch (e) {}
+
+            try {
+                const resEnvios = await fetch(`${API_BASE}/envios`);
+                const envios = await resEnvios.json();
+                let htmlEnvios = '';
+                envios.forEach(e => {
+                    let badge = e.estado_enviado ? '<span class="badge bg-success">Enviado</span>' : '<span class="badge bg-warning text-dark">Pendiente/Error</span>';
+                    htmlEnvios += `
+                        <tr>
+                            <td>${e.id_envio}</td>
+                            <td>#${e.id_orden}</td>
+                            <td>${e.canal}</td>
+                            <td>${badge}</td>
+                            <td class="text-center"><button class="btn btn-sm btn-warning py-0" onclick="abrirEdicionEnvio(${e.id_envio})">Update</button></td>
+                        </tr>`;
+                });
+                document.getElementById('tablaEnvios').innerHTML = htmlEnvios || '<tr><td colspan="5" class="text-center text-muted">Sin envíos</td></tr>';
+            } catch (e) {}
+        }
+
+        function abrirModalArchivo() { modalArchivo.show(); }
+        
+        async function guardarArchivo() {
+            const payload = { id_detalle: parseInt(document.getElementById('id_detalle').value), url_archivo: document.getElementById('url_archivo').value, tipo_archivo: "application/pdf" };
+            const res = await fetch(`${API_BASE}/adjuntos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (res.ok) { modalArchivo.hide(); cargarDatos(); mostrarAlerta('Archivo subido.', 'success'); }
+        }
+
+        async function borrarArchivo(id) {
+            if(!confirm('¿Borrar documento?')) return;
+            const res = await fetch(`${API_BASE}/adjuntos/${id}`, { method: 'DELETE' });
+            if (res.ok) { cargarDatos(); mostrarAlerta('Archivo borrado.', 'success'); }
+        }
+
+        function abrirModalEnvio() { modalCrearEnvio.show(); }
+
+        async function guardarEnvio() {
+            const payload = { id_orden: parseInt(document.getElementById('envio_id_orden').value), canal: document.getElementById('envio_canal').value };
+            const res = await fetch(`${API_BASE}/envios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (res.ok) { modalCrearEnvio.hide(); cargarDatos(); mostrarAlerta('Envío programado.', 'success'); }
+        }
+
+        function abrirEdicionEnvio(id) {
+            document.getElementById('edit_id_envio').value = id;
+            modalEditarEnvio.show();
+        }
+
+        async function actualizarEnvio() {
+            const id = document.getElementById('edit_id_envio').value;
+            const estado = document.getElementById('edit_estado').value === 'true';
+            const payload = { estado_enviado: estado, msj_error: estado ? null : document.getElementById('edit_error').value };
+            const res = await fetch(`${API_BASE}/envios/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (res.ok) { modalEditarEnvio.hide(); cargarDatos(); mostrarAlerta('Estatus actualizado.', 'success'); }
+        }
+    </script>
+</body>
+</html>

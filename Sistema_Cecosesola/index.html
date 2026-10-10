@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recepción CECOCESOLA - InfoLab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-logo">
+                <div class="logo-icon"><i class="bi bi-hospital"></i></div>
+                <div>
+                    <span class="logo-text">InfoLab</span>
+                    <span class="logo-sub">CECOCESOLA Santa Cruz</span>
+                </div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-label">Operaciones</div>
+            <a href="index.html" class="active">
+                <span class="nav-icon"><i class="bi bi-people-fill"></i></span> Recepción / Pacientes
+            </a>
+            <a href="ordenes.html">
+                <span class="nav-icon"><i class="bi bi-receipt-cutoff"></i></span> Caja y Facturación
+            </a>
+            <a href="laboratorio.html">
+                <span class="nav-icon"><i class="bi bi-eyedropper"></i></span> Laboratorio
+            </a>
+            <a href="distribucion.html">
+                <span class="nav-icon"><i class="bi bi-send-fill"></i></span> Distribución
+            </a>
+            <div class="sidebar-label">Administración</div>
+            <a href="catalogo.html">
+                <span class="nav-icon"><i class="bi bi-journal-medical"></i></span> Catálogo de Servicios
+            </a>
+            <a href="usuarios.html">
+                <span class="nav-icon"><i class="bi bi-shield-lock-fill"></i></span> Usuarios
+            </a>
+        </nav>
+        <div class="sidebar-footer">© 2026 InfoLab v2.0</div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main -->
+    <main class="main-content">
+        <header class="top-navbar" data-module="recepcion">
+            <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            <div class="page-title">
+                <span class="title-icon"><i class="bi bi-people-fill"></i></span> Recepción / Pacientes
+            </div>
+            <span class="breadcrumb-module">Módulo: Recepción</span>
+        </header>
+
+        <div class="page-body">
+            <div id="alert-container"></div>
+
+            <div class="row">
+                <!-- Formulario de Registro (POST) -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Registrar Paciente
+                        </div>
+                        <div class="card-body">
+                            <form id="formPaciente">
+                                <div class="mb-2">
+                                    <label class="form-label small">Cédula *</label>
+                                    <input type="text" class="form-control form-control-sm" id="cedula_paci" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Nombre Completo *</label>
+                                    <input type="text" class="form-control form-control-sm" id="nombre_completo" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Fecha Nacimiento *</label>
+                                    <input type="date" class="form-control form-control-sm" id="fecha_naci" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Sexo *</label>
+                                    <select class="form-select form-select-sm" id="sexo" required>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">Teléfono *</label>
+                                    <input type="text" class="form-control form-control-sm" id="telefono" required>
+                                </div>
+                                <!-- NUEVOS CAMPOS: Correo y Dirección -->
+                                <div class="mb-2">
+                                    <label class="form-label small">Correo Electrónico</label>
+                                    <input type="email" class="form-control form-control-sm" id="correo">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Dirección de Residencia</label>
+                                    <input type="text" class="form-control form-control-sm" id="direccion">
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success btn-sm" id="btnGuardar">
+                                        <span class="spinner-border spinner-border-sm me-2" id="spinner-btn" style="display:none;"></span>
+                                        Guardar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla del Directorio (GET, PUT y DELETE) -->
+                <div class="col-md-9">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+                            Directorio Activo
+                            <div class="spinner-border spinner-border-sm text-light" id="spinner-carga" role="status" style="display:none;"></div>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table table-hover align-middle m-0 text-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Cédula</th>
+                                        <th>Nombre</th>
+                                        <th>Sexo</th>
+                                        <th>Teléfono</th>
+                                        <th>Correo</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaPacientes">
+                                    <!-- Datos desde la API -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+    <!-- Modal de Edición Bootstrap (PUT) -->
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title fw-bold">Actualizar Contacto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="edit_cedula">
+            <div class="mb-3">
+                <label class="form-label">Nuevo Teléfono</label>
+                <input type="text" class="form-control" id="edit_telefono" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nuevo Correo</label>
+                <input type="email" class="form-control" id="edit_correo">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nueva Dirección</label>
+                <input type="text" class="form-control" id="edit_direccion">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="guardarEdicion()">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        const API_URL = 'http://127.0.0.1:8000/api/pacientes/';
+        let modalInstance;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalInstance = new bootstrap.Modal(document.getElementById('modalEditar'));
+            cargarPacientes();
+        });
+
+        function mostrarAlerta(mensaje, tipo) {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show">
+                ${mensaje} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+            setTimeout(() => container.innerHTML = '', 4000);
+        }
+
+        async function cargarPacientes() {
+            document.getElementById('spinner-carga').style.display = 'block';
+            try {
+                const response = await fetch(API_URL);
+                const pacientes = await response.json();
+                const tbody = document.getElementById('tablaPacientes');
+                tbody.innerHTML = '';
+                
+                pacientes.forEach(p => {
+                    const correoText = p.correo ? p.correo : '<span class="text-muted">N/D</span>';
+                    const dirParam = p.direccion ? p.direccion : '';
+                    const corParam = p.correo ? p.correo : '';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${p.cedula_paci}</strong></td>
+                            <td>${p.nombre_completo}</td>
+                            <td>${p.sexo}</td>
+                            <td>${p.telefono}</td>
+                            <td>${correoText}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning me-1" onclick="abrirEdicion('${p.cedula_paci}', '${p.telefono}', '${corParam}', '${dirParam}')">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="eliminarPaciente('${p.cedula_paci}')">Borrar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                mostrarAlerta('Error cargando directorio.', 'danger');
+            } finally {
+                document.getElementById('spinner-carga').style.display = 'none';
+            }
+        }
+
+        document.getElementById('formPaciente').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnGuardar');
+            btn.disabled = true; document.getElementById('spinner-btn').style.display = 'inline-block';
+
+            const payload = {
+                cedula_paci: document.getElementById('cedula_paci').value,
+                nombre_completo: document.getElementById('nombre_completo').value,
+                fecha_naci: document.getElementById('fecha_naci').value,
+                sexo: document.getElementById('sexo').value,
+                telefono: document.getElementById('telefono').value,
+                correo: document.getElementById('correo').value || null,
+                direccion: document.getElementById('direccion').value || null
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.status === 201) {
+                    mostrarAlerta('Paciente guardado.', 'success');
+                    document.getElementById('formPaciente').reset();
+                    cargarPacientes();
+                } else {
+                    mostrarAlerta('Verifica los datos.', 'warning');
+                }
+            } catch (error) {
+                mostrarAlerta('Error de red.', 'danger');
+            } finally {
+                btn.disabled = false; document.getElementById('spinner-btn').style.display = 'none';
+            }
+        });
+
+        function abrirEdicion(cedula, telefono, correo, direccion) {
+            document.getElementById('edit_cedula').value = cedula;
+            document.getElementById('edit_telefono').value = telefono;
+            document.getElementById('edit_correo').value = correo;
+            document.getElementById('edit_direccion').value = direccion;
+            modalInstance.show();
+        }
+
+        async function guardarEdicion() {
+            const cedula = document.getElementById('edit_cedula').value;
+            const payload = {
+                telefono: document.getElementById('edit_telefono').value,
+                correo: document.getElementById('edit_correo').value || null,
+                direccion: document.getElementById('edit_direccion').value || null
+            };
+
+            try {
+                const response = await fetch(API_URL + cedula, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    mostrarAlerta('Contacto actualizado con éxito.', 'success');
+                    modalInstance.hide();
+                    cargarPacientes();
+                } else {
+                    mostrarAlerta('Error al actualizar.', 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error de red al actualizar.', 'danger');
+            }
+        }
+
+        async function eliminarPaciente(cedula) {
+            if (!confirm('¿Inhabilitar esta ficha médica?')) return;
+            try {
+                const response = await fetch(API_URL + cedula, { method: 'DELETE' });
+                if (response.ok) {
+                    mostrarAlerta('Paciente inhabilitado.', 'success');
+                    cargarPacientes();
+                }
+            } catch (error) {
+                mostrarAlerta('Error al borrar.', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>
